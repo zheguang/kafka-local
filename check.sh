@@ -46,7 +46,7 @@ echo -e "\n=== Offline Partitions ==="
 ./bin/kafka-topics.sh --bootstrap-server localhost:19094 --describe --unavailable-partitions
 
 
-echo -e "\n=== End-to-end test ==="
+echo -e "\n=== End-to-end latency test ==="
 ./bin/kafka-topics.sh --bootstrap-server localhost:19094 --create --topic my-e2e-test --partitions 3 --replication-factor 3
 ./bin/kafka-e2e-latency.sh --bootstrap-server localhost:19094 --topic my-e2e-test --num-records 10000 --producer-acks 1 --record-size 128
 ./bin/kafka-topics.sh --bootstrap-server localhost:19094 --describe --under-replicated-partitions
