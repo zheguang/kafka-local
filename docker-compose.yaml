@@ -4,6 +4,7 @@ services:
         container_name: kafka-1
         image: kafka
         build: .
+        stop_grace_period: 60s
         volumes:
             - ./kafka:/kafka
         environment:
@@ -27,6 +28,7 @@ services:
         container_name: kafka-2
         image: kafka
         build: .
+        stop_grace_period: 60s
         volumes:
             - ./kafka:/kafka
         environment:
@@ -45,6 +47,7 @@ services:
         container_name: kafka-3
         image: kafka
         build: .
+        stop_grace_period: 60s
         volumes:
             - ./kafka:/kafka
         environment:
