@@ -14,7 +14,10 @@ WORKDIR /kafka
 ARG NODE_ID
 ENV NODE_ID=${NODE_ID}
 ARG ADVERTISED_PORT
-ARG ADVERTISED_PORT={ADVERTISED_PORT}
+ENV ADVERTISED_PORT=${ADVERTISED_PORT}
+
+## default to local machine
+ENV EXTERNAL_HOSTNAME=${EXTERNAL_HOSTNAME:-localhost}
 
 ## constants
 ENV KAFKA_CLUSTER_ID=en6x1yegRMycKxtEAM-pJw
@@ -32,7 +35,7 @@ RUN sed -i "s/^node\\.id=1/node.id=${NODE_ID}/" /config/server.properties
 RUN sed -i 's/\(^listener\.security\.protocol\.map=.*\)/\1,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT/' /config/server.properties
 RUN sed -i 's/^inter\.broker\.listener\.name=.*/inter.broker.listener.name=INTERNAL/' /config/server.properties
 RUN sed -i 's/^listeners=.*/listeners=INTERNAL:\/\/:9092,CONTROLLER:\/\/:9093,EXTERNAL:\/\/:9094/' /config/server.properties
-RUN sed -i "s/^advertised\\.listeners=.*/advertised.listeners=INTERNAL:\/\/kafka-${NODE_ID}:9092,CONTROLLER:\/\/kafka-${NODE_ID}:9093,EXTERNAL:\/\/localhost:${ADVERTISED_PORT}/" /config/server.properties
+RUN sed -i "s/^advertised\\.listeners=.*/advertised.listeners=INTERNAL:\/\/kafka-${NODE_ID}:9092,CONTROLLER:\/\/kafka-${NODE_ID}:9093,EXTERNAL:\/\/${EXTERNAL_HOSTNAME}:${ADVERTISED_PORT}/" /config/server.properties
 RUN sed -i "s/^controller\\.quorum\\.bootstrap\\.servers=.*/controller.quorum.bootstrap.servers=${CONTROLLER_QUORUM_BOOTSTRAP_SERVERS}/" /config/server.properties
 
 ### Build time

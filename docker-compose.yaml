@@ -1,5 +1,7 @@
 services:
     kafka-1:
+        hostname: kafka-1
+        container_name: kafka-1
         build:
             context: .
             args:
@@ -9,12 +11,12 @@ services:
             - ./kafka:/kafka
         environment:
             - KAFKA_DEBUG=1
-            # JDWP: Listen on all interfaces (via wildcard, i.e., 0.0.0.0). Important because docker forwards port mapping traffic to the container's eth0 interface
-            - JAVA_DEBUG_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:15005
-            - KAFKA_JMX_PORT=19101
-            - KAFKA_JMX_HOSTNAME=localhost
-            # RMI: Tell JMX clients to use "localhost" to connect to JMX server inside the container
-            - "KAFKA_JMX_OPTS=-Djava.rmi.server.hostname=localhost \
+            # JDWP: Simple TCP, no "call back" needed -- listen on/bind to all interfaces (via wildcard, i.e., 0.0.0.0). Important because docker forwards port mapping traffic to the container's eth0 interface
+            - JAVA_DEBUG_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+            # RMI: like Kafka, not a simple TCP, but requires "call back" -- separating bind port and advertised port. 
+            # But worse than Kafka, same jmxremote.port and jmxremote.rmi.port is used for BOTH bind and call back.
+            # Tell JMX clients to use "localhost" to connect to JMX server in the container when in local machine by default
+            - "KAFKA_JMX_OPTS=-Djava.rmi.server.hostname=${EXTERNAL_HOSTNAME:-localhost} \
                 -Dcom.sun.management.jmxremote=true \
                 -Dcom.sun.management.jmxremote.authenticate=false  \
                 -Dcom.sun.management.jmxremote.ssl=false \
@@ -22,10 +24,12 @@ services:
                 -Dcom.sun.management.jmxremote.rmi.port=19101"
         ports:
             - "19094:9094" # client listener
-            - "15005:15005" # jvm debug 
+            - "15005:5005" # jvm debug 
             - "19101:19101" # jmx
 
     kafka-2:
+        hostname: kafka-2
+        container_name: kafka-2
         build:
             context: .
             args:
@@ -35,10 +39,8 @@ services:
             - ./kafka:/kafka
         environment:
             - KAFKA_DEBUG=1
-            - JAVA_DEBUG_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:25005
-            - KAFKA_JMX_PORT=29101
-            - KAFKA_JMX_HOSTNAME=localhost
-            - "KAFKA_JMX_OPTS=-Djava.rmi.server.hostname=localhost \
+            - JAVA_DEBUG_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+            - "KAFKA_JMX_OPTS=-Djava.rmi.server.hostname=${EXTERNAL_HOSTNAME:-localhost} \
                 -Dcom.sun.management.jmxremote=true \
                 -Dcom.sun.management.jmxremote.authenticate=false  \
                 -Dcom.sun.management.jmxremote.ssl=false \
@@ -46,10 +48,12 @@ services:
                 -Dcom.sun.management.jmxremote.rmi.port=29101"
         ports:
             - "29094:9094" # client listener
-            - "25005:25005" # jvm debug 
+            - "25005:5005" # jvm debug 
             - "29101:29101" # jmx
 
     kafka-3:
+        hostname: kafka-3
+        container_name: kafka-3
         build:
             context: .
             args:
@@ -59,9 +63,8 @@ services:
             - ./kafka:/kafka
         environment:
             - KAFKA_DEBUG=1
-            - JAVA_DEBUG_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:35005
-            - KAFKA_JMX_PORT=39101
-            - "KAFKA_JMX_OPTS=-Djava.rmi.server.hostname=localhost \
+            - JAVA_DEBUG_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+            - "KAFKA_JMX_OPTS=-Djava.rmi.server.hostname=${EXTERNAL_HOSTNAME:-localhost} \
                 -Dcom.sun.management.jmxremote=true \
                 -Dcom.sun.management.jmxremote.authenticate=false  \
                 -Dcom.sun.management.jmxremote.ssl=false \
@@ -69,5 +72,5 @@ services:
                 -Dcom.sun.management.jmxremote.rmi.port=39101"
         ports:
             - "39094:9094" # client listener
-            - "35005:35005" # jvm debug 
+            - "35005:5005" # jvm debug 
             - "39101:39101" # jmx
