@@ -1,7 +1,15 @@
 #!bin/bash
 
-KAFKA_HOME="${1:?Required first argument to be path to Kafka repo}"
-COMPOSE_HOME=$(set -P && cd $KAFKA_HOME && cd .. && pwd)
+COMPOSE_HOME="$(dirname $(readlink -f "0"))"
+echo $COMPOSE_HOME
+KAFKA_HOME="$COMPOSE_HOME"/kafka
+echo $KAFKA_HOME
+
+[ -d "$KAFKA_HOME" ] ||
+{
+    echo '[error] <kafka-local>/kafka does not exist. Clone Apache Kafka first.'
+    exit 1
+}
 
 cd $COMPOSE_HOME
 echo "=== Container Status ==="
@@ -38,6 +46,12 @@ bin/kafka-jmx.sh --object-name kafka.server:type=KafkaServer,name=BrokerState --
 bin/kafka-jmx.sh --object-name kafka.server:type=KafkaServer,name=BrokerState --jmx-url service:jmx:rmi:///jndi/rmi://localhost:29101/jmxrmi --one-time true
 bin/kafka-jmx.sh --object-name kafka.server:type=KafkaServer,name=BrokerState --jmx-url service:jmx:rmi:///jndi/rmi://localhost:39101/jmxrmi --one-time true
 
+echo -e "\n=== Debugger attach ==="
+echo quit | jdb -attach localhost:15005 2>&1 | grep -q 'Initializing jdb' || 
+{
+    echo "[error] JDWP not reachable on kakfa-1"
+    exit 1
+}
 
 echo -e "\n=== Under-Replicated Partitions ==="
 ./bin/kafka-topics.sh --bootstrap-server localhost:19094 --describe --under-replicated-partitions

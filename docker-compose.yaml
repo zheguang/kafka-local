@@ -12,6 +12,11 @@ services:
             - ADVERTISED_PORT=19094
             - KAFKA_DEBUG=1
             - RMI_JMX_BIND_PORT=19101
+# Note that updating this through compose's environment directive won't be picked up by docker compose restart which
+# only stops and starts the existing containers with the previous environment.
+# To instruct compose to pick up the new overrides, use docker compose up -d, which detects environment change and recreates
+# the cotainers, and restart them.
+            # - SERVER_PROPERTIES_OVERRIDE='--override K1=V1 --override K1=V2'
         ports:
             - "19094:9094" # client listener
             - "15005:5005" # jvm debug 

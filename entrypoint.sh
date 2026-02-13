@@ -51,6 +51,9 @@ if [ "$START_MODE" = '-f' ]; then
                            -Dcom.sun.management.jmxremote.rmi.port=${RMI_JMX_BIND_PORT}"
 fi
 
-echo "[info] Starting"
-exec bin/kafka-server-start.sh /config/server.properties
+# In the form of "--override K1=V1 --override K2=V2 ..."
+export SERVER_PROPERTIES_OVERRIDE=${SERVER_PROPERTIES_OVERRIDE:-""}
+
+echo "[info] Starting with server properties overrides: ${SERVER_PROPERTIES_OVERRIDE}"
+exec bin/kafka-server-start.sh /config/server.properties ${SERVER_PROPERTIES_OVERRIDE}
 
